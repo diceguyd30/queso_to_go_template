@@ -1,10 +1,43 @@
 const settings = require('./settings.js');
 const twitch = require('./twitch.js').twitch();
 const fs = require('fs');
+const standardBase30 = '0123456789abcdefghijklmnopqrst'
+const nintendoBase30 = '0123456789BCDFGHJKLMNPQRSTVWXY'
+const arbitraryXorValue = 377544828 
 
 var current_level = undefined;
 var levels = new Array();
 const cache_filename = "queso.save";
+
+// This function returns true if the course id given to it is a valid course id. The optional parameter dataIdThresHold
+// will make the function return false if the data id of the submitted level is greater than it.
+function courseIdValidity(courseIdString, dataIdThreshold)
+{
+    let reversedString = courseIdString.split("").reverse()
+    reversedString = reversedString.map(c => standardBase30[nintendoBase30.indexOf(c)]).join('')
+    let courseBits = parseInt(reversedString, 30)
+
+    let courseBitsString = courseBits.toString(2)
+    if (courseBitsString.length !== 44)
+    {
+        return false
+    }
+    let dataId = parseInt(courseBitsString.substring(32, 44).concat((courseBitsString.substring(10, 30))),2) ^ arbitraryXorValue
+    let fieldA = parseInt(courseBitsString.substring(0, 4),2)
+    let fieldB = parseInt(courseBitsString.substring(4, 10),2)
+    let fieldE = parseInt(courseBitsString.substring(31, 32,2))
+
+    if (fieldA !== 8 || fieldB !== (dataId - 31) % 64 || fieldE != 1)
+    {
+        return false
+    }
+    else if (typeof dataIdThreshold === 'number')
+    {
+        return dataId <= dataIdThreshold
+    }
+
+    return true;
+}
 
 const isValidLevelCode = (level_code) => {
   const level_bit = '[A-Ha-hJ-Nj-nP-Yp-y0-9]{3}';

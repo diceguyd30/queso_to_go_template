@@ -6,11 +6,18 @@ var current_level = undefined;
 var levels = new Array();
 const cache_filename = "queso.save";
 
-const isValidLevelCode = (level_code) => {
-  const level_bit = '[A-Ha-hJ-Nj-nP-Yp-y0-9]{3}';
-  const delim_bit = '[-. ]?';
-  const valid_level_code = level_bit + delim_bit + level_bit + delim_bit + level_bit;
-  return level_code.match(valid_level_code);
+const delim = "[-\. ]?";
+const code = "[A-Ha-hJ-Nj-nP-Yp-y0-9]{3}";
+const codeStrict = "[A-Ha-hJ-Nj-nP-Yp-y0-9]{2}[fghFGH]";
+const levelCodeRegex = new RegExp(`(${code})${delim}(${code})${delim}(${codeStrict})`);
+
+const extractValidCode = (levelCode) => {
+  let match = levelCode.match(levelCodeRegex);
+  if (match) {
+    // `${match[1]}${match[2]}${match[3]}`.toUpperCase();
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+  return null;
 };
 
 const queue = {
@@ -18,9 +25,11 @@ const queue = {
     if (levels.length >= settings.max_size) {
       return "Sorry, the level queue is full!";
     }
-    if (!isValidLevelCode(level.code)) {
+    let code = extractValidCode(level.code);
+    if (!code) {
       return "I'm pretty sure '" + level.code + "' isn't a valid code. Try again.";
     }
+    level.code = code;
     if (current_level != undefined && current_level.submitter == level.submitter && level.submitter != settings.channel) {
       return "Wait for your level to be completed before you submit again.";
     }
@@ -53,9 +62,11 @@ const queue = {
   },
 
   replace: (username, new_level_code) => {
-    if (!isValidLevelCode(new_level_code)) {
+    let code = extractValidCode(new_level_code);
+    if (!code) {
       return "I'm pretty sure '" + new_level_code + "' isn't a valid code.  Try again.";
     }
+    new_level_code = code;
     var old_level = levels.find(x => x.submitter == username);
     if (old_level != undefined) {
       old_level.code = new_level_code;

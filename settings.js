@@ -9,4 +9,5 @@ module.exports = {
   // example: ['next', 'subnext', 'random']
   level_selection: [],
   message_cooldown: 5,
+  dataIdThreshold: undefined, // change this to the number of the maximum allowed data ID
 };

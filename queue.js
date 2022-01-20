@@ -25,9 +25,10 @@ function courseIdValidity(courseIdString, dataIdThreshold)
     let dataId = parseInt(courseBitsString.substring(32, 44).concat((courseBitsString.substring(10, 30))),2) ^ arbitraryXorValue
     let fieldA = parseInt(courseBitsString.substring(0, 4),2)
     let fieldB = parseInt(courseBitsString.substring(4, 10),2)
+    let fieldD = parseInt(courseBitsString.substring(30, 31,2))
     let fieldE = parseInt(courseBitsString.substring(31, 32,2))
 
-    if (fieldA !== 8 || fieldB !== (dataId - 31) % 64 || fieldE != 1)
+    if (fieldA !== 8 || fieldB !== (dataId - 31) % 64 || (fieldD == 0 && dataId < 3000004) || fieldE != 1)
     {
         return false
     }

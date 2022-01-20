@@ -16,8 +16,10 @@ const levelCodeRegex = new RegExp(`(${code})${delim}(${code})${delim}(${codeStri
 
 // This function returns true if the course id given to it is a valid course id. The optional parameter dataIdThresHold
 // will make the function return false if the data id of the submitted level is greater than it.
-function courseIdValidity(courseIdString, dataIdThreshold)
+// For max data id threshold, if you only want to have a max maker id threshold, send the 2nd argument as null.
+function courseIdValidity(courseIdString, dataIdCourseThreshold, dataIdMakerThreshold)
 {
+    
     let reversedString = courseIdString.split("").reverse()
     reversedString = reversedString.map(c => standardBase30[nintendoBase30.indexOf(c)]).join('')
     let courseBits = parseInt(reversedString, 30)
@@ -37,9 +39,13 @@ function courseIdValidity(courseIdString, dataIdThreshold)
     {
         return false
     }
-    else if (typeof dataIdThreshold === 'number')
+    else if (typeof dataIdMakerThreshold === 'number' && fieldD == 1) 
     {
-        return dataId <= dataIdThreshold
+        return dataId <= dataIdMakerThreshold;
+    } 
+    else if (typeof dataIdCourseThreshold === 'number' && fieldD == 0)
+    {
+        return dataId <= dataIdCourseThreshold;
     }
 
     return true;
@@ -55,7 +61,7 @@ const extractValidCode = (levelCode) => {
   let match = levelCode.match(levelCodeRegex);
   if (match) {
     let courseIdString = `${match[1]}${match[2]}${match[3]}`.toUpperCase();
-    let validity = courseIdValidity(courseIdString, settings.dataIdThreshold);
+    let validity = courseIdValidity(courseIdString, settings.dataIdCourseThreshold, settings.dataIdMakerThreshold);
     return { code: `${match[1]}-${match[2]}-${match[3]}`, valid: validity, validSyntax: true };
   }
   return { code: levelCode, valid: false, validSyntax: false };

@@ -94,6 +94,7 @@ const queue = {
     var top = current_level;
     current_level = undefined;
     queue.add(top);
+    queue.save();
     return 'Ok, adding the current level back into the queue.';
   },
 
@@ -253,7 +254,7 @@ const queue = {
   save: () => {
     var levels_to_save = levels;
     if (current_level != undefined) {
-      levels_to_save = [current_level].concat(levels_to_save);
+      levels_to_save = [{...current_level, current_level: true}].concat(levels_to_save);
     }
     var new_data = JSON.stringify(levels_to_save, null, 2);
     fs.writeFileSync(cache_filename, new_data);
@@ -274,7 +275,22 @@ const queue = {
           }
         });
       }
-      current_level = undefined;
+      // find the current_level
+      const is_current = level => level.hasOwnProperty('current_level') && level.current_level;
+      // make sure to remove the current_level property for all levels
+      const rm_current = level => { let result = { ...level }; delete result.current_level; return result; };
+      let current_levels = levels.filter(is_current).map(rm_current);
+      if (current_levels.length == 1) {
+        current_level = current_levels[0];
+        levels = levels.filter(x => !is_current(x)).map(rm_current);
+      } else {
+        if (current_levels.length > 1) {
+          console.warn('More than one level in the queue is marked as current.');
+          console.warn('This is ignored and no level is now the current level.');
+        }
+        current_level = undefined;
+        levels = levels.map(rm_current);
+      }
     }
   },
 

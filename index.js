@@ -188,6 +188,10 @@ async function HandleMessage(message, sender, respond) {
     level_timer.restart();
     level_timer.pause();
     respond(await quesoqueue.punt());
+  } else if (message == '!dismiss' || message == '!skip' || message.startsWith('!complete')) {
+    level_timer.restart();
+    level_timer.pause();
+    respond(await quesoqueue.dismiss());
   } else if (message.startsWith('!dip') && sender.isBroadcaster) {
     var username = get_remainder(message);
     level_timer.restart();

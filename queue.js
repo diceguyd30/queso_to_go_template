@@ -97,6 +97,16 @@ const queue = {
     return 'Ok, adding the current level back into the queue.';
   },
 
+  dismiss: async () => {
+    if (current_level === undefined) {
+      return "No current level.";
+    }
+    let response = 'Dismissed ' + current_level.code + ', submitted by ' + current_level.submitter;
+    current_level = undefined;
+    queue.save();
+    return response;
+  },
+
   next: async () => {
     var list = await queue.list();
     var both = list.online.concat(list.offline);

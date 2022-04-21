@@ -188,7 +188,7 @@ async function HandleMessage(message, sender, respond) {
     level_timer.restart();
     level_timer.pause();
     respond(await quesoqueue.punt());
-  } else if (message == '!dismiss' || message == '!skip' || message.startsWith('!complete')) {
+  } else if ((message == '!dismiss' || message == '!skip' || message.startsWith('!complete')) && sender.isBroadcaster) {
     level_timer.restart();
     level_timer.pause();
     respond(await quesoqueue.dismiss());
